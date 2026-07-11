@@ -28,8 +28,8 @@ public class AltimeterMod
         enableAltimeterHUD = configFile.Bind("General", "EnableAltimeterHUD", true, "Enables the Altimeter HUD display showing player altitude above ground.");
         enableAltimeterHUD.SettingChanged += OnEnableAltimeterHUDChanged;
 
-        altimeterAnchorX = configFile.Bind("HUD Positioning", "AltimeterAnchorX", 0.15f, "X anchor position for Altimeter (0-1).");
-        altimeterAnchorY = configFile.Bind("HUD Positioning", "AltimeterAnchorY", 0.8375f, "Y anchor position for Altimeter (0-1).");
+        altimeterAnchorX = configFile.Bind("HUD Positioning", "AltimeterAnchorX", 0.06355292f, "X anchor position for Altimeter (0-1).");
+        altimeterAnchorY = configFile.Bind("HUD Positioning", "AltimeterAnchorY", 0.2589327f, "Y anchor position for Altimeter (0-1).");
         altimeterAnchorX.SettingChanged += OnAnchorChanged;
         altimeterAnchorY.SettingChanged += OnAnchorChanged;
     }
