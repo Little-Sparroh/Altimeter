@@ -10,7 +10,9 @@ public class AltimeterMod
     private ConfigEntry<bool> enableAltimeterHUD;
     private ConfigEntry<float> altimeterAnchorX;
     private ConfigEntry<float> altimeterAnchorY;
+    private ConfigColor valueColor;
     private HudHandle hud;
+
     private const float RaycastMaxDistance = 1000f;
 
     private readonly ConfigFile configFile;
@@ -32,7 +34,11 @@ public class AltimeterMod
         altimeterAnchorY = configFile.Bind("HUD Positioning", "AltimeterAnchorY", 0.2589327f, "Y anchor position for Altimeter (0-1).");
         altimeterAnchorX.SettingChanged += OnAnchorChanged;
         altimeterAnchorY.SettingChanged += OnAnchorChanged;
+
+        valueColor = ConfigColor.Bind(configFile, "Colors", "ValueColor", UIColors.Shamrock,
+            "Rich-text value color for altitude (hex RRGGBB or #RRGGBB).");
     }
+
 
     public bool IsActive => hud != null && hud.IsActive;
     public Vector2 GetSize => hud?.Size ?? Vector2.zero;
@@ -115,7 +121,8 @@ public class AltimeterMod
         else if (altitude >= RaycastMaxDistance)
             hud.Primary.Text = "Too High";
         else
-            hud.Primary.SetRich("Altitude", altitude, UIColors.Shamrock, "m");
+            hud.Primary.SetRich("Altitude", altitude, valueColor.Value, "m");
+
     }
 
     private float CalculateAltitude()
