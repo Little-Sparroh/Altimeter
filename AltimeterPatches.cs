@@ -40,18 +40,18 @@ public class AltimeterMod
     }
 
 
-    public bool IsActive => hud != null && hud.IsActive;
-    public Vector2 GetSize => hud?.Size ?? Vector2.zero;
+    public bool IsActive => HudHandle.IsValid(hud) && hud.IsActive;
+    public Vector2 GetSize => HudHandle.IsValid(hud) ? hud.Size : Vector2.zero;
 
     public void UpdateHudVisibility()
     {
-        if (hud != null)
+        if (HudHandle.IsValid(hud))
             hud.SetActive(enableAltimeterHUD.Value);
     }
 
     private void OnEnableAltimeterHUDChanged(object sender, EventArgs e)
     {
-        if (enableAltimeterHUD.Value == false && hud != null)
+        if (enableAltimeterHUD.Value == false && HudHandle.IsValid(hud))
             DestroyHud();
         UpdateHudVisibility();
     }
@@ -63,13 +63,20 @@ public class AltimeterMod
 
     private void UpdateAnchors()
     {
-        if (hud != null)
+        if (HudHandle.IsValid(hud))
             hud.SetAnchor(altimeterAnchorX.Value, altimeterAnchorY.Value);
     }
 
     private void CreateAltimeterHUD()
     {
-        if (hud != null) return;
+        // Stale handle after quit-to-menu: C# wrapper survives, GameObject does not.
+        if (hud != null && !hud.IsAlive)
+        {
+            HudRepositionClient.Unregister(SparrohPlugin.PluginGUID);
+            hud = null;
+        }
+
+        if (HudHandle.IsValid(hud)) return;
 
         hud = HudBuilder.Create("AltimeterHUD")
             .ParentToReticle()
@@ -79,7 +86,7 @@ public class AltimeterMod
             .AddText("AltitudeText")
             .Build();
 
-        if (hud == null)
+        if (!HudHandle.IsValid(hud))
             return;
 
         HudRepositionClient.Register(
@@ -97,7 +104,8 @@ public class AltimeterMod
         HudRepositionClient.Unregister(SparrohPlugin.PluginGUID);
         if (hud != null)
         {
-            hud.Destroy();
+            if (hud.IsAlive)
+                hud.Destroy();
             hud = null;
         }
     }
@@ -106,13 +114,14 @@ public class AltimeterMod
     {
         if (!enableAltimeterHUD.Value) return;
 
-        if (hud == null)
+        if (!HudHandle.IsValid(hud))
         {
             CreateAltimeterHUD();
             return;
         }
 
         if (hud.Primary == null || Player.LocalPlayer == null) return;
+
 
         float altitude = CalculateAltitude();
 
